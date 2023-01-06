@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/style.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,600,700&display=swap" rel="stylesheet">
+        <title>Bweather</title>
+        <link href="images/ico.svg" rel="icon">
+        <script src="js/id.js"></script>
+        <script src="js/lib.js"></script>
+    </head>
+    <body>
+        <script>
+            index_init()
+        </script>
+
+        <div class="mobile">
+            <img class="logo" src="images/logo.svg" alt="">
+            <p style="text-align: center; color: #5A5A5A; font-size: 12px;">Miasta</p>
+
+            <a href="weather.html?city=Warszawa">
+                <div class="CITY">
+                    <div class="left">
+                        <img id="pic1" alt="">
+                    </div>
+                    <div class="right">
+                        <span id="temp1"></span> Warszawa
+                    </div>
+                </div>
+            </a>
+
+            <a href="weather.html?city=Wrocław">
+                <div class="CITY">
+                    <div class="left">
+                        <img id="pic2" alt="">
+                    </div>
+                    <div class="right">
+                        <span id="temp2"></span> Wrocław
+                    </div>
+                </div>
+            </a>
+
+            <a href="weather.html?city=Kołobrzeg">
+                <div class="CITY">
+                    <div class="left">
+                        <img id="pic3" alt="">
+                    </div>
+                    <div class="right">
+                        <span id="temp3"></span> Kołobrzeg
+                    </div>
+                </div>
+            </a>
+
+            <div class="" style="margin-top: 50px;"></div>
+
+            <form action="weather.html" method="GET">
+                <input class="INPUT" name="city" type="text" placeholder="nazwa miasta" required>
+                <input class="PRZY" type="submit" value="Sprawdź">
+            </form>
+        </div>
+    </body>
+</html>

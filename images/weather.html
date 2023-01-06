@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,600,700&display=swap" rel="stylesheet">
+    <title>Bweather</title>
+    <link href="images/ico.svg" rel="icon">
+</head>
+<body>
+    <script>
+        function round(value, precision) {
+            var multiplier = Math.pow(10, precision || 0);
+            return Math.round(value * multiplier) / multiplier;
+        }
+
+        cityName = ""
+
+        function getName() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const city = urlParams.get('city')
+
+            return city;
+        }
+
+        function getDayName(dateStr)
+        {
+            local = "pl-PL";
+            var date = new Date(dateStr);
+            return date.toLocaleDateString(local, { weekday: 'long' });        
+        }
+
+        function getLink(type) {
+            if(type == 1)
+            {
+                return "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=7b174ffcf2007471d6a94762f06d1414&lang=pl&units=metric";
+            }
+            else if(type == 2)
+            {
+                return "https://api.openweathermap.org/data/2.5/forecast?id=524901&appid=7b174ffcf2007471d6a94762f06d1414&q=" + cityName + "&lang=pl&units=metric";
+            }
+        }
+
+        function unix_to_time(unixTimestamp){
+            // var unixTimestamp = 1626375664
+            var date = new Date(unixTimestamp*1000);
+            return date.toString().substring(15, 21)
+        }
+
+        function now_weather() {
+            fetch(getLink(1))
+            .then(response=>response.json())
+            .then(data => {
+                document.getElementById("temp").innerHTML = round(data['main']['temp'], 0).toString() + "°"
+                document.getElementById("temp2").innerHTML = round(data['main']['temp'], 1).toString() + " °C"
+                document.getElementById("tempOdczu").innerHTML = round(data['main']['feels_like'], 1).toString() + " °C"
+                document.getElementById("humidity").innerHTML = data["main"]["humidity"].toString() + "%"
+                document.getElementById("description").innerHTML = data["weather"][0]['description'];
+                document.getElementById("wind").innerHTML = data["wind"]["speed"].toString() + "m/s"
+                document.getElementById("cityName").innerHTML = data["name"];
+                document.getElementById("pressure").innerHTML = data["main"]["pressure"].toString() + " hPa";
+                document.getElementById("pic").src = "images/" + data["weather"][0]["icon"] + ".svg";
+                document.getElementById("map").src = "https://embed.windy.com/embed2.html?lat=" + data["coord"]["lat"] +"&lon=" + data["coord"]["lon"] + "&zoom=6&level=surface&overlay=radar&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"
+                // console.log(data)
+                document.getElementById("sunset").innerHTML = unix_to_time(data["sys"]["sunset"])
+                document.getElementById("sunrise").innerHTML = unix_to_time(data["sys"]["sunrise"])
+
+                air_pollution(data["coord"]["lat"], data["coord"]["lon"])
+            })
+        }
+
+        function forecast(){
+            fetch(getLink(2))
+            .then(response=>response.json())
+            .then(data => {
+                data["list"].forEach(element => {
+                var divId = document.getElementById("forecast")
+                
+                day = element["dt_txt"].substring(5, 10)
+                day = day.substring(3, 5) + "." + day.substring(0, 2);
+                hour = element["dt_txt"].substring(10, 16);
+
+
+                tmp = '<div class="fore"><div class="box"><div class="left"><img src="images/' + element["weather"][0]["icon"] + '.svg" alt=""></div><div class="right">' + round(element["main"]["temp"], 0) + ' °C <span style="color: #afafaf;">•</span> ' + element["main"]["humidity"] + '% <span style="color: #afafaf;">•</span> ' + element["main"]["pressure"] + ' hPa<p class="date">' + hour + ', '  + getDayName(element["dt_txt"].substring(0, 10)) + ' (' + day + ')</p></div></div></div>';
+
+                divId.innerHTML = divId.innerHTML + tmp; 
+                });  
+            })            
+        }
+
+        function air_quality(level){
+            if(level == 1) return "dobra"
+            if(level == 2) return "dostateczna"
+            if(level == 3) return "umiarkowana"
+            if(level == 4) return "zła"
+            if(level == 5) return "bardzo zła"
+        }
+
+        function air_pollution(lat, lon){
+            tmp = "https://api.openweathermap.org/data/2.5/air_pollution?lat=" + lat + "&lon=" + lon + "&appid=7b174ffcf2007471d6a94762f06d1414"
+            fetch(tmp)
+            .then(response=>response.json())
+            .then(data => {
+                document.getElementById("air_pollution").innerHTML = air_quality(data["list"][0]["main"]["aqi"]);
+            })
+        }
+
+        function init() {
+
+            console.log(unix_to_time(1626375664))
+
+            cityName = getName();
+            now_weather();
+            forecast();
+            // console.log(getLink())
+        }
+
+        init()
+    </script>
+
+
+    <div class="mobile">
+        <div class="main">
+            <div class="left">
+                <img src="" alt="" id="pic">
+            </div>
+            <div class="right">
+                <div class="tmp">
+                    <h1 id="temp"></h1>
+                    <p id="cityName"></p>
+                </div>
+            </div>
+        </div>
+        <p style="margin-bottom: 4px; margin-top: 15px; text-align: center;" id="description"></p>
+        <div style="margin-top: 0;" class="com"></div>
+        <div class="info">
+            <div class="box">
+                <div class="module">
+                    <img src="images/sunrise.svg" alt=""><span class="time" id="sunrise">4:20</span> 
+                </div>
+                <div class="module">
+                    <img src="images/sunset.svg" alt=""><span class="time" id="sunset">21:37</span> 
+                </div>
+            </div>
+            <p>Temperatura: <span id="temp2"></span></p>
+            <p>Temperatura Odczuwalna: <span id="tempOdczu"></span></p>
+            <p>Wilgotność: <span id="humidity"></span></p>
+            <p>Wiatr: <span id="wind"></span></p>
+            <p>Ciśnienie: <span id="pressure"></span></p>
+            <p>Jakość powietrza: <span id="air_pollution"></span></p>
+        
+        </div>
+
+        <div class="com"></div>
+        <h2 style="text-align: center; font-weight: normal;">Mapa</h2>
+        <div class="map">
+            <iframe id="map" frameborder="0"></iframe>
+        </div>
+        <div class="com"></div>
+        <h2 style="text-align: center; font-weight: normal;">Prognoza</h2>
+        <div id="forecast"></div>
+
+        <footer>
+            Bweather
+        </footer>
+    </div>
+    <p class="error">
+        Za wąski ekran 🙃 
+    </p>
+</body>
+</html>
